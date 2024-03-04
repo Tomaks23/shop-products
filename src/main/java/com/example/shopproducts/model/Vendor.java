@@ -1,5 +1,6 @@
 package com.example.shopproducts.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,6 @@ import lombok.Setter;
 public class Vendor {
     private Integer id;
     private String name;
-    private String products_link;
+    @JsonAlias("products_link")
+    private String productsLink;
 }

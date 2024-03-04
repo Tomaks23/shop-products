@@ -1,6 +1,7 @@
 package com.example.shopproducts.model;
 
 import com.example.shopproducts.model.dto.VendorDto;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 import java.util.List;
@@ -14,5 +15,6 @@ public class Product {
     private String name;
     private Double price;
     private List<VendorDto> vendors;
-    private String image_link;
+    @JsonAlias("image_link")
+    private String imageLink;
 }

@@ -10,11 +10,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 class ProductController {
 
+
+    public final ProductService productService;
+
     @Autowired
-    public ProductService productService;
+    ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping("/products")
     public String getProducts(){
@@ -23,8 +28,8 @@ class ProductController {
 
     @GetMapping
     public ResponseEntity<ProductListResponse> getProductsFilter(
-            @RequestParam(defaultValue = "1") int start,
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "1") Integer start,
+            @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order) {
 

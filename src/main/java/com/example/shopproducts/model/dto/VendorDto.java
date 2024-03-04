@@ -1,5 +1,6 @@
 package com.example.shopproducts.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,6 @@ import lombok.Setter;
 public class VendorDto {
     private Integer id;
     private String name;
-    private String self_link;
+    @JsonAlias("self_link")
+    private String selfLink;
 }
