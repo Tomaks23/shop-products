@@ -36,8 +36,6 @@ class ProductController {
         return ResponseEntity.ok(productService.getProductsFilter(start, limit, sort, order));
     }
 
-
-
     @GetMapping("/product/{productId}")
     public Product getProductById(@PathVariable Integer productId) {
         return productService.getProductById(productId);

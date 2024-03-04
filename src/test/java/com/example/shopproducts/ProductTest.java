@@ -1,12 +1,14 @@
 package com.example.shopproducts;
 
+import com.example.shopproducts.model.Meta;
 import com.example.shopproducts.model.Product;
 import com.example.shopproducts.model.Vendor;
+import com.example.shopproducts.model.dto.ProductDto;
 import com.example.shopproducts.model.dto.VendorDto;
 import com.example.shopproducts.model.response.ProductListResponse;
 import com.example.shopproducts.service.ProductService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.example.shopproducts.service.ProductServiceImpl;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
@@ -16,8 +18,8 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
-
-public class ProductTest {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class ProductTest {
 
     @Mock
     private RestTemplate restTemplate;
@@ -27,40 +29,54 @@ public class ProductTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        productService = new ProductService(restTemplate);
+        productService = new ProductServiceImpl(restTemplate);
     }
 
     @Test
+    @Order(1)
     void testGetProductData() {
-        // Mock the response from the REST API
         String expectedData = "Mocked Product Data";
+
         when(restTemplate.getForObject("https://api.predic8.de/shop/v2/products/", String.class))
                 .thenReturn(expectedData);
 
-        // Call the method under test
         String actualData = productService.getProductData();
 
-        // Verify the result
         assertEquals(expectedData, actualData);
     }
 
     @Test
+    @Order(2)
     void testGetProductsFilter() {
-        // Mock the response from the REST API
         ProductListResponse expectedResponse = new ProductListResponse();
-        // Set up expected response data...
+
+        ProductDto productDto= new ProductDto();
+        productDto.setSelfLink("/shop/v2/products/1");
+        productDto.setId(1);
+        productDto.setName("Banana");
+        Meta meta= new Meta();
+        meta.setCount(17);
+        meta.setLimit(10);
+        meta.setStart(1);
+        meta.setNextLink("http://localhost:8080/api?start=2&limit=10&sort=id&order=asc");
+        meta.setPreviousLink(null);
+        List<ProductDto> products = new ArrayList<>();
+        products.add(productDto);
+        expectedResponse.setProducts(products);
+        expectedResponse.setMeta(meta);
         when(restTemplate.getForObject("https://api.predic8.de/shop/v2/products/?start=1&limit=10&sort=id&order=asc",
                 ProductListResponse.class))
                 .thenReturn(expectedResponse);
 
-        // Call the method under test
         ProductListResponse actualResponse = productService.getProductsFilter(1, 10, "id", "asc");
 
-        // Verify the result
         assertEquals(expectedResponse, actualResponse);
+        assertNotEquals(425,actualResponse.getMeta().getLimit());
+        assertEquals("Banana",actualResponse.getProducts().get(0).getName());
     }
 
     @Test
+    @Order(3)
     void testGetProductById() {
         Product expectedProduct = new Product();
         expectedProduct.setId(1);
@@ -68,11 +84,11 @@ public class ProductTest {
         VendorDto vendorDto= new VendorDto();
         vendorDto.setId(1);
         vendorDto.setName("Exotics Fruit Lair Ltd.");
-        vendorDto.setSelf_link("/shop/v2/vendors/1");
+        vendorDto.setSelfLink("/shop/v2/vendors/1");
         List<VendorDto> vendor= new ArrayList<>();
         vendor.add(vendorDto);
         expectedProduct.setVendors(vendor);
-        expectedProduct.setImage_link("/shop/v2/vendors/1");
+        expectedProduct.setImageLink("/shop/v2/vendors/1");
 
         when(restTemplate.getForObject("https://api.predic8.de/shop/v2/products/1", Product.class))
                 .thenReturn(expectedProduct);
@@ -85,17 +101,18 @@ public class ProductTest {
     }
 
     @Test
+    @Order(4)
     void testGetVendorById() {
-        // Mock the response from the REST API
         Vendor expectedVendor = new Vendor();
-        // Set up expected vendor data...
-        when(restTemplate.getForObject("https://api.predic8.de/shop/v2/vendors/456", Vendor.class))
+        expectedVendor.setId(1);
+        expectedVendor.setName("Exotics Fruit Lair Ltd.");
+        expectedVendor.setProductsLink("/shop/v2/vendors/1/products");
+        when(restTemplate.getForObject("https://api.predic8.de/shop/v2/vendors/1", Vendor.class))
                 .thenReturn(expectedVendor);
 
-        // Call the method under test
-        Vendor actualVendor = productService.getVendorById(456);
+        Vendor actualVendor = productService.getVendorById(1);
 
-        // Verify the result
         assertEquals(expectedVendor, actualVendor);
+        assertNotEquals(3,actualVendor.getId());
     }
 }
